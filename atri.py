@@ -11,7 +11,7 @@ from random import randrange
 import requests
 from flask import Flask, render_template, request
 
-from ..config import GROUP_NAME_TO_GID, PROXY, SESSDATA, WEIBO_HOT_WORD_NUM
+from config import GROUP_NAME_TO_GID, PROXY, SESSDATA, WEIBO_HOT_WORD_NUM
 from utils import userid
 
 log.basicConfig(
