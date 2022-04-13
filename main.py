@@ -411,12 +411,12 @@ class AtriPixiv(object):
         if int(r["body"]["lastPage"]) > 1:
             message = requests.get("https://www.pixiv.net/touch/ajax/user/illusts?id={}&type=illust&lang=en&p={}".format(id, randrange(1, r["body"]["lastPage"]))).json()
         
-        randlink = message["body"]["illusts"][randrange(0, len(message["body"]["illusts"])-1)]
-        return json.dumps({
-            "b64": cls.getImage(randlink["url"]), 
-            "uid": randlink["author_details"]["user_id"],
-            "uname": randlink["author_details"]["user_name"]
-            })
+            randlink = message["body"]["illusts"][randrange(0, len(message["body"]["illusts"])-1)]
+            return json.dumps({
+                "b64": cls.getImage(randlink["url"]), 
+                "uid": randlink["author_details"]["user_id"],
+                "uname": randlink["author_details"]["user_name"]
+                })
 
     @classmethod
     def getRandom(cls):
