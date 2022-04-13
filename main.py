@@ -473,6 +473,11 @@ atri = Flask(__name__, template_folder='./atri-template/')
 def index():
     return render_template('index.html')
 
+@atri.route('/favicon.ico')
+def favicon():
+    with open('favicon.ico', 'rb') as f:
+        return f.read()
+
 @atri.route('/bhot/', methods=['GET'])
 def bili_hot_world():
     return Bili.getHotWord()
@@ -532,6 +537,13 @@ def getpin():
 def getbyid():
     id = request.values.get('id')
     return AtriPixiv.SearchPainter(id)
+
+@atri.route('/searchManga')
+def searchmanga():
+    from manga_get.search import MangaSearch
+    word = request.values.get('word')
+    return MangaSearch().search(word)
+
 
 if __name__ == '__main__':
     log.info('服务器准备启动...')
