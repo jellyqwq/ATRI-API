@@ -1,2 +1,5 @@
 - [http://10.244.110.84:6702]()
-    - [/bhot]() 
+    - [/bhot]() GET 获取bilibili的热搜 => msg
+    - [/whot]() GET 获取微博热搜前十 => msg
+    - [/saveImage]() GET 参数 ``HashList:图片hash列表; gid:群组id `` 保存图片hash !=
+    - [/getCQImage]() GET 参数 ``gid:群组id; num:多少张`` 获取指定群组的指定张数的hash列表 => imgList

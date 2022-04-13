@@ -488,19 +488,15 @@ def save_image():
     gid = flask.request.values.get('gid')
     ImageKit.saveCQImageHash(literal_eval(hashList), gid)
 
+@atri.route('/getCQImage', methods=['GET'])
+def get_cq():
+    gid = flask.request.values.get('gid')
+    num = flask.request.values.get('num')
+    return ImageKit.getCQImage(gid, num)
 
-#         if 'saveImage' in self.path:
-#             query = parse.parse_qs(parse.urlparse(parse.unquote(self.path)).query)
-#             if len(query) == 0:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))
-#             elif 'gid' not in query or 'hashList' not in query:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))
-#             else:
-#                 log.info(query['hashList'][0])
-#                 message = ImageKit.saveCQImageHash(literal_eval(query['hashList'][0]), query['gid'][0])
-#                 self._set_headers(len(message))
-#                 self.wfile.write(message.encode('utf-8'))
-        
+if __name__ == '__main__':
+    atri.run(host='127.0.0.1', port=6702, debug=True)
+
 #         if 'getCQImage' in self.path:
 #             query = parse.parse_qs(parse.urlparse(parse.unquote(self.path)).query)
 #             if len(query) == 0:
@@ -591,8 +587,5 @@ def save_image():
 #     log.info('アトリは、高性能ですから!')
 #     HTTPServer((host,port),Handler).serve_forever() 
 
-if __name__ == '__main__':
-    # run_with_reloader(main())
-    atri.run(host='127.0.0.1', port=6702, debug=True)   
 
     
