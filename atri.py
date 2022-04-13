@@ -460,7 +460,6 @@ class AtriPixiv(object):
         )
         # sourceurl = "/search/pins/?q={}&rs=sitelinks_searchbox".format(name)
         message = requests.get('https://www.pinterest.com/resource/BaseSearchResource/get/?data={}'.format(payload)).json()
-        # log.info(message)
         b64list = []
         if "resource_response" in message:
             for _ in range(int(num)):
