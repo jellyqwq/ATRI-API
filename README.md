@@ -4,3 +4,10 @@
     - [/saveImage]() GET 参数 ``HashList:图片hash列表; gid:群组id `` 保存图片hash !=
     - [/getCQImage]() GET 参数 ``gid:群组id; num:多少张`` 获取指定群组的指定张数的hash列表 => imgList
     - [/atrimath/invernum]() GET 参数 ``numList:逆序数列表`` 获取计算后的字符串
+    - [/ImageBank]() GET 获取图库信息
+    - [/getDynamicInfo]()　GET　参数 ``id:动态id`` 返回动态信息
+    - [/getBiliVideoInfo]() GET 参数 ``abcode:b站视频aid或bid`` 返回视频信息的字符串
+    - [/getrandom]() GET 从图库随机获取一张图
+    - [/getname]() GET 参数 ``name:关键词;num:张数`` 根据关键词和张数从Pixiv获取含有n张图片的列表,列表中包含了n个字典
+    - [/getpin]() GET 参数 ``name:关键词;num:张数`` 根据关键词搜索Pinterest,并随机抽取一个,返回其Base64值
+    - [/getbyid]() GET 参数 ``id:画师id`` 获取指定画师id随机一个画作图片Base64 值,画师id,画师名字的json
