@@ -11,7 +11,7 @@ from random import randrange
 import requests
 from flask import Flask, render_template, request
 
-from config import GROUP_NAME_TO_GID, PROXY, SESSDATA, WEIBO_HOT_WORD_NUM
+from ..config import GROUP_NAME_TO_GID, PROXY, SESSDATA, WEIBO_HOT_WORD_NUM
 from utils import userid
 
 log.basicConfig(
@@ -355,9 +355,7 @@ class AtriMath:
             return json.dumps({'error':'逆序数获取失败'}, ensure_ascii=False)
 
 class AtriPixiv(object):
-
     # @https://github.com/MeteorsLiu/PyBot/blob/main/startpixiv.py
-
     # 通过图片url获取base64 string
     @staticmethod
     def getImage(picPath):
@@ -409,7 +407,7 @@ class AtriPixiv(object):
     def SearchPainter(cls, id):
         r = requests.get("https://www.pixiv.net/touch/ajax/user/illusts?id={}&type=illust&lang=en".format(id)).json()
         if r["error"]:
-            return json.dumps({"error": "画师{}不存在！".format(id)})
+            return json.dumps({"error": "画师{}不存在！".format(id)}, ensure_ascii=False)
         if int(r["body"]["lastPage"]) > 1:
             message = requests.get("https://www.pixiv.net/touch/ajax/user/illusts?id={}&type=illust&lang=en&p={}".format(id, randrange(1, r["body"]["lastPage"]))).json()
         
