@@ -3,3 +3,4 @@
     - [/whot]() GET 获取微博热搜前十 => msg
     - [/saveImage]() GET 参数 ``HashList:图片hash列表; gid:群组id `` 保存图片hash !=
     - [/getCQImage]() GET 参数 ``gid:群组id; num:多少张`` 获取指定群组的指定张数的hash列表 => imgList
+    - [/atrimath/invernum]() GET 参数 ``numList:逆序数列表`` 获取计算后的字符串

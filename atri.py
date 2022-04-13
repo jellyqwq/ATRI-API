@@ -6,12 +6,10 @@ import random
 import re
 import time
 from ast import literal_eval
-from http.server import BaseHTTPRequestHandler, HTTPServer
 from random import randrange
-from urllib import parse
 
 import requests
-import flask
+from flask import Flask, render_template, request
 from werkzeug._reloader import run_with_reloader
 
 from config import GROUP_NAME_TO_GID, PROXY, SESSDATA, WEIBO_HOT_WORD_NUM
@@ -53,10 +51,10 @@ class Bili(object):
             for i in HotWordLsit:
                 message += '\n'+str(i[0])+'.'+i[1]
             log.info('\n'+message)
-            return json.dumps({'msg': message})
+            return json.dumps({'msg': message}, ensure_ascii=False)
         else:
             log.error('Failed to get hot search')
-            return json.dumps({'error': 'Failed to get hot search'})
+            return json.dumps({'error': 'Failed to get hot search'}, ensure_ascii=False)
     
     @classmethod
     def toBiliShortUrl(cls, url):
@@ -72,10 +70,10 @@ class Bili(object):
             }
         try:
             response = requests.post(shareUrl, data, cls.headers).json()
-            return json.dumps({'msg':response['data']['content']})
+            return json.dumps({'msg':response['data']['content']}, ensure_ascii=False)
         except:
             log.error('Failed to transform short link')
-            return json.dumps({'error': 'Failed to transform short link'})
+            return json.dumps({'error': 'Failed to transform short link'}, ensure_ascii=False)
 
     @classmethod
     def biliVideoInfo(cls, abcode):
@@ -87,7 +85,7 @@ class Bili(object):
             response = requests.get('http://api.bilibili.com/x/web-interface/view?aid={}'.format(aid), headers=cls.headers)
         else:
             log.error('abcode: {}'.format(abcode))
-            return json.dumps({'error': 'abcode error'})
+            return json.dumps({'error': 'abcode error'}, ensure_ascii=False)
 
         if response.json()['code'] == 0:
             data = response.json()['data']
@@ -112,10 +110,10 @@ class Bili(object):
                 'coin': stat['coin'],
                 'share': stat['share'],
                 'like': stat['like'],
-                'shortLink': shortLink})
+                'shortLink': shortLink}, ensure_ascii=False)
         else:
             log.error(response.json()['code'])
-            return json.dumps({'error': 'Failed to get video info, please inquire bili status codes to get help'})
+            return json.dumps({'error': 'Failed to get video info, please inquire bili status codes to get help'}, ensure_ascii=False)
 
     @classmethod
     def getDynamicInfo(cls, dynamic_id):
@@ -149,7 +147,7 @@ class Bili(object):
                         'like': desc['like'],
                         'time': timestamp,
                         'content': content,
-                        'imageList': imageList})
+                        'imageList': imageList}, ensure_ascii=False)
             
                 # 纯文本动态
                 elif dynamic_format == 4:
@@ -163,14 +161,14 @@ class Bili(object):
                         'comment': desc['comment'],
                         'like': desc['like'],
                         'time': timestamp,
-                        'content': content})
+                        'content': content}, ensure_ascii=False)
 
                 else:
                     log.error('该动态类型未完善')
-                    return json.dumps({'error': '该动态类型未完善'})
+                    return json.dumps({'error': '该动态类型未完善'}, ensure_ascii=False)
             else:
                 log.error('b站请求错误')
-                return json.dumps({'error': 'b站请求错误'})
+                return json.dumps({'error': 'b站请求错误'}, ensure_ascii=False)
 
 class Weibo(object):
     headers = {
@@ -187,7 +185,7 @@ class Weibo(object):
             HotWordLsit = [['Top', hotgov['word'], hotgov['icon_desc']]]
             realtime = data['realtime']
         except:
-            return json.dumps({'error':'微博热搜获取失败'})
+            return json.dumps({'error':'微博热搜获取失败'}, ensure_ascii=False)
         num = 1
         HotWordTime = time.strftime("%Y-%m-%d %H:%M %a", time.localtime(time.time()))
         for hot_dict in realtime:
@@ -200,7 +198,7 @@ class Weibo(object):
         for i in HotWordLsit:
             message += '\n'+i[0]+'.'+i[1]
         # log.info('\n'+message)
-        return json.dumps({'msg': message})
+        return json.dumps({'msg': message}, ensure_ascii=False)
 
 class ImageKit(object):
     
@@ -221,6 +219,8 @@ class ImageKit(object):
                             if hashu == line.strip() and count == False:
                                 log.info('图片已存在')
                                 count = True
+                                return json.dumps({'msg': '图片已存在'}, ensure_ascii=False)
+                                
                                 break
                         if count == False:
                             f.seek(0,2)
@@ -229,10 +229,10 @@ class ImageKit(object):
                     else:
                         f.write(hashu)
                         f.write('\n')
-                return json.dumps({'msg': '保存成功'})
+                return json.dumps({'msg': '保存成功'}, ensure_ascii=False)
         except:
-            log.error('CQ图url匹配失败')
-            return json.dumps({'error': 'CQ图url匹配失败'})
+            log.error('CQ图hash匹配失败')
+            return json.dumps({'error': 'CQ图hash匹配失败'}, ensure_ascii=False)
     
     # 获取指定群聊的hash值个数
     @staticmethod
@@ -250,7 +250,7 @@ class ImageKit(object):
             return {'count': count}
         except:
             log.error('组图片统计失败')
-            return json.dumps({'error': '组图片统计失败'})
+            return json.dumps({'error': '组图片统计失败'}, ensure_ascii=False)
 
     # 获取所有群的总张数
     @staticmethod
@@ -282,7 +282,7 @@ class ImageKit(object):
             imgSet = set()
             count = cls.countOneGroupHash(gid)['count']
             if count < int(imgnum):
-                return json.dumps({'msg': '群{}图库数量不足'.format(cls.GID_TO_GNAME[gid])})
+                return json.dumps({'msg': '群{}图库数量不足'.format(cls.GID_TO_GNAME[gid])}, ensure_ascii=False)
             imgList = []
             while len(imgSet) != int(imgnum) and count >= int(imgnum):
                 r = random.randint(0,len(CQImageList)-1)
@@ -307,10 +307,10 @@ class ImageKit(object):
                         else:
                             num += 1
                         line = f.readline()
-            return json.dumps({'imgList': imgList})
+            return json.dumps({'imgList': imgList}, ensure_ascii=False)
         except:
             log.error('获取图片失败')
-            return json.dumps({'error': '获取图片失败'})
+            return json.dumps({'error': '获取图片失败'}, ensure_ascii=False)
 
     @classmethod
     def getImageBankInfo(cls):
@@ -323,16 +323,15 @@ class ImageKit(object):
                 for gid in groupList:
                     if gid in cls.GID_TO_GNAME.keys():
                         m += cls.GID_TO_GNAME[gid]+': '+str(cls.countOneGroupHash(gid)['count'])+'张\n'
-                return json.dumps({'msg': m})
+                return json.dumps({'msg': m.strip()}, ensure_ascii=False)
             else:
                 log.error('图库空空如也')
-                return json.dumps({'error': '图库空空如也'})
+                return json.dumps({'error': '图库空空如也'}, ensure_ascii=False)
         except:
             log.error('图库信息获取失败')
-            return json.dumps({'error': '图库信息获取失败'})
+            return json.dumps({'error': '图库信息获取失败'}, ensure_ascii=False)
 
 class AtriMath:
-
     @staticmethod
     def inversion_number(numList):
         try:
@@ -352,9 +351,9 @@ class AtriMath:
                 for i in list_2:
                     result += i
                 msg += '{}的逆序数为{}\n'.format(num, result)
-            return json.dumps({'msg':msg})
+            return json.dumps({'msg':msg}, ensure_ascii=False)
         except:
-            return json.dumps({'error':'逆序数获取失败'})
+            return json.dumps({'error':'逆序数获取失败'}, ensure_ascii=False)
 
 class AtriPixiv(object):
 
@@ -472,120 +471,73 @@ class AtriPixiv(object):
         return json.dumps(b64list)
 
 os.makedirs('./atri-template/', exist_ok=True)
-atri = flask.Flask(__name__, template_folder='./atri-template/')
+atri = Flask(__name__, template_folder='./atri-template/')
 
-@atri.route('/bhot', methods=['GET'])
+@atri.route('/')
+def index():
+    return render_template('index.html')
+
+@atri.route('/bhot/', methods=['GET'])
 def bili_hot_world():
     return Bili.getHotWord()
 
-@atri.route('/whot', methods=['GET'])
+@atri.route('/whot/', methods=['GET'])
 def weibo_hot_world():
     return Weibo.getHotWord()
 
-@atri.route('/saveImage', methods=['GET'])
+@atri.route('/saveImage/', methods=['GET'])
 def save_image():
-    hashList =  flask.request.values.get('hashList')
-    gid = flask.request.values.get('gid')
-    ImageKit.saveCQImageHash(literal_eval(hashList), gid)
+    hashList =  request.values.get('hashList')
+    gid = request.values.get('gid')
+    return ImageKit.saveCQImageHash(literal_eval(hashList), gid)
 
-@atri.route('/getCQImage', methods=['GET'])
+@atri.route('/getCQImage/', methods=['GET'])
 def get_cq():
-    gid = flask.request.values.get('gid')
-    num = flask.request.values.get('num')
+    gid = request.values.get('gid')
+    num = request.values.get('num')
     return ImageKit.getCQImage(gid, num)
 
+@atri.route('/atrimath/invernum', methods=['GET'])
+def invernum():
+    numList = request.values.get('numList')
+    return AtriMath.inversion_number(literal_eval(numList))
+
+@atri.route('/ImageBank')
+def ImageBank():
+    return ImageKit.getImageBankInfo()
+
+@atri.route('/getDynamicInfo')
+def getDynamicInfo():
+    id = request.values.get('id')
+    return Bili.getDynamicInfo(id)
+
+@atri.route('/getBiliVideoInfo')
+def getBiliVideoInfo():
+    abcode = request.values.get('abcode')
+    return Bili.biliVideoInfo(abcode)
+
+@atri.route('/getrandom')
+def getrandom():
+    return AtriPixiv.getRandom()
+
+@atri.route('/getname')
+def getname():
+    name = request.values.get('name')
+    num = request.values.get('num')
+    return AtriPixiv.getName(name, num)
+
+@atri.route('/getpin')
+def getpin():
+    name = request.values.get('name')
+    num = request.values.get('num')
+    return AtriPixiv.getPinterest(name, num)
+
+@atri.route('/getbyid')
+def getbyid():
+    id = request.values.get('id')
+    return AtriPixiv.SearchPainter(id)
+
 if __name__ == '__main__':
+    log.info('服务器准备启动...')
+    log.info('アトリは、高性能ですから!')
     atri.run(host='127.0.0.1', port=6702, debug=True)
-
-#         if 'getCQImage' in self.path:
-#             query = parse.parse_qs(parse.urlparse(parse.unquote(self.path)).query)
-#             if len(query) == 0:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))
-#             elif 'gid' not in query or 'num' not in query:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))
-#             else:
-#                 message = ImageKit.getCQImage(query['gid'][0],query['num'][0])
-#                 self._set_headers(len(message))
-#                 self.wfile.write(message.encode('utf-8'))
-
-#         if '/atrimath/invernum' in self.path:
-#             query = parse.parse_qs(parse.urlparse(parse.unquote(self.path)).query)
-#             # log.info('query: %s', query)
-#             if len(query) == 0:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))     
-#             elif 'numList' not in query:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))
-#             else:
-#                 log.info(query["numList"][0])
-#                 message = AtriMath.inversion_number(literal_eval(query["numList"][0]))
-#                 self._set_headers(len(message))
-#                 self.wfile.write(message.encode('utf-8'))
-
-#         if 'ImageBank' in self.path:
-#             message = ImageKit.getImageBankInfo()
-#             self._set_headers(len(message))
-#             self.wfile.write(message.encode('utf-8'))
-
-#         if 'getDynamicInfo' in self.path:
-#             query = parse.parse_qs(parse.urlparse(parse.unquote(self.path)).query)
-#             if len(query) == 0:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))
-#             elif 'dynamic_id' not in query:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))
-#             else:
-#                 message = Bili.getDynamicInfo(query['dynamic_id'][0])
-#                 self._set_headers(len(message))
-#                 self.wfile.write(message.encode('utf-8'))
-        
-#         if 'getBiliVideoInfo' in self.path:
-#             query = parse.parse_qs(parse.urlparse(parse.unquote(self.path)).query)
-#             if len(query) == 0:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))
-#             elif 'abcode' not in query:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))
-#             else:
-#                 message = Bili.biliVideoInfo(query['abcode'][0])
-#                 self._set_headers(len(message))
-#                 self.wfile.write(message.encode('utf-8'))
-        
-#         if "getrandom" in self.path:
-#             message = AtriPixiv.getRandom()
-#             self._set_headers(len(message))
-#             self.wfile.write(message.encode('utf-8'))
-
-#         if "getname" in self.path:
-#             query = parse.parse_qs(parse.urlparse(parse.unquote(self.path)).query)
-#             if len(query) == 0:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))
-#             else:
-#                 message = AtriPixiv.getName(query["name"][0], query["num"][0])
-#                 self._set_headers(len(message))
-#                 self.wfile.write(message.encode('utf-8'))
-        
-#         if "getpin" in self.path:
-#             query = parse.parse_qs(parse.urlparse(parse.unquote(self.path)).query)
-#             if len(query) == 0:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))
-#             else:
-#                 message = AtriPixiv.getPinterest(query["name"][0], query["num"][0])
-#                 self._set_headers(len(message))
-#                 self.wfile.write(message.encode('utf-8'))
-
-#         if "getbyid" in self.path:
-#             query = parse.parse_qs(parse.urlparse(parse.unquote(self.path)).query)
-#             if len(query) == 0:
-#                 self.wfile.write(json.dumps({"error": "参数错误"}).encode('utf-8'))
-#             else:
-#                 message = AtriPixiv.SearchPainter(query["id"][0])
-#                 self._set_headers(len(message))
-#                 self.wfile.write(message.encode('utf-8'))
-
-# def main():
-#     host = '10.244.110.84'
-#     port = 6702
-#     log.info('服务器准备启动...')
-#     log.info('アトリは、高性能ですから!')
-#     HTTPServer((host,port),Handler).serve_forever() 
-
-
-    
